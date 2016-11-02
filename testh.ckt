@@ -1,0 +1,4 @@
+vsrc1 a 0 0
+h4 c 0 vsrc1 4 
+isrc3 0 a 2
+r4  c 0 5

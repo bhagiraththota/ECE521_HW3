@@ -1,0 +1,833 @@
+#!/bin/sh
+# This is a shell archive (produced by GNU sharutils 4.7).
+# To extract the files from this archive, save it to some FILE, remove
+# everything before the `#!/bin/sh' line above, then type `sh FILE'.
+#
+lock_dir=_sh11251
+# Made on 2016-10-25 15:31 PDT by <karti@nome01.eecs.oregonstate.edu>.
+# Source directory was `/nfs/guille/ams/users/karti/ece521/c-code/hw3'.
+#
+# Existing files will *not* be overwritten, unless `-c' is specified.
+#
+# This shar contains:
+# length mode       name
+# ------ ---------- ------------------------------------------
+#   1590 -rw-rw---- fetlim.c
+#    521 -rw-rw---- limvds.c
+#   2624 -rw------- mosfet.c
+#    818 -rw------- pnjlim.c
+#   1435 -rw------- mosfet.h
+#     85 -rw------- test10.ckt
+#     58 -rw------- test11.ckt
+#     75 -rw------- test12.ckt
+#    145 -rw------- test13.ckt
+#     85 -rw------- test14.ckt
+#    373 -rw------- test15.ckt
+#    306 -rw------- test16.ckt
+#     47 -rw------- test17.ckt
+#     97 -rw------- test18.ckt
+#     48 -rw------- test9.ckt
+#
+MD5SUM=${MD5SUM-md5sum}
+f=`${MD5SUM} --version | egrep '^md5sum .*(core|text)utils'`
+test -n "${f}" && md5check=true || md5check=false
+${md5check} || \
+  echo 'Note: not verifying md5sums.  Consider installing GNU coreutils.'
+save_IFS="${IFS}"
+IFS="${IFS}:"
+gettext_dir=FAILED
+locale_dir=FAILED
+first_param="$1"
+for dir in $PATH
+do
+  if test "$gettext_dir" = FAILED && test -f $dir/gettext \
+     && ($dir/gettext --version >/dev/null 2>&1)
+  then
+    case `$dir/gettext --version 2>&1 | sed 1q` in
+      *GNU*) gettext_dir=$dir ;;
+    esac
+  fi
+  if test "$locale_dir" = FAILED && test -f $dir/shar \
+     && ($dir/shar --print-text-domain-dir >/dev/null 2>&1)
+  then
+    locale_dir=`$dir/shar --print-text-domain-dir`
+  fi
+done
+IFS="$save_IFS"
+if test "$locale_dir" = FAILED || test "$gettext_dir" = FAILED
+then
+  echo=echo
+else
+  TEXTDOMAINDIR=$locale_dir
+  export TEXTDOMAINDIR
+  TEXTDOMAIN=sharutils
+  export TEXTDOMAIN
+  echo="$gettext_dir/gettext -s"
+fi
+if (echo "testing\c"; echo 1,2,3) | grep c >/dev/null
+then if (echo -n test; echo 1,2,3) | grep n >/dev/null
+     then shar_n= shar_c='
+'
+     else shar_n=-n shar_c= ; fi
+else shar_n= shar_c='\c' ; fi
+f=shar-touch.$$
+st1=200112312359.59
+st2=123123592001.59
+st2tr=123123592001.5 # old SysV 14-char limit
+st3=1231235901
+
+if touch -am -t ${st1} ${f} >/dev/null 2>&1 && \
+   test ! -f ${st1} && test -f ${f}; then
+  shar_touch='touch -am -t $1$2$3$4$5$6.$7 "$8"'
+
+elif touch -am ${st2} ${f} >/dev/null 2>&1 && \
+   test ! -f ${st2} && test ! -f ${st2tr} && test -f ${f}; then
+  shar_touch='touch -am $3$4$5$6$1$2.$7 "$8"'
+
+elif touch -am ${st3} ${f} >/dev/null 2>&1 && \
+   test ! -f ${st3} && test -f ${f}; then
+  shar_touch='touch -am $3$4$5$6$2 "$8"'
+
+else
+  shar_touch=:
+  echo
+  ${echo} 'WARNING: not restoring timestamps.  Consider getting and'
+  ${echo} 'installing GNU `touch'\'', distributed in GNU coreutils...'
+  echo
+fi
+rm -f ${st1} ${st2} ${st2tr} ${st3} ${f}
+#
+if test ! -d ${lock_dir}
+then : ; else ${echo} 'lock directory '${lock_dir}' exists'
+  exit 1
+fi
+if mkdir ${lock_dir}
+then ${echo} 'x - created lock directory `'${lock_dir}\''.'
+else ${echo} 'x - failed to create lock directory `'${lock_dir}\''.'
+  exit 1
+fi
+# ============= fetlim.c ==============
+if test -f 'fetlim.c' && test "$first_param" != -c; then
+  ${echo} 'x -SKIPPING fetlim.c (file already exists)'
+else
+${echo} 'x - extracting fetlim.c (text)'
+  sed 's/^X//' << 'SHAR_EOF' > 'fetlim.c' &&
+X
+X    /*
+X     * fetlim(vnew,vold.vto)
+X     * limit the per-iteration change of FET voltages 
+X     * (From Spice3)
+X     */
+X
+double
+fetlim(vnew,vold,vto)
+X    double vnew;
+X    double vold;
+X    double vto;
+X
+{
+X    double vtsthi;
+X    double vtstlo;
+X    double vtox;
+X    double delv;
+X    double vtemp;
+X
+X    vtsthi = ABS(2*(vold-vto))+2;
+X    vtstlo = vtsthi/2 +2;
+X    vtox = vto + 3.5;
+X    delv = vnew-vold;
+X
+X    if (vold >= vto) {
+X        if(vold >= vtox) {
+X            if(delv <= 0) {
+X                /* going off */
+X                if(vnew >= vtox) {
+X                    if(-delv >vtstlo) {
+X                        vnew =  vold - vtstlo;
+X                    }
+X                } else {
+X                    vnew = MAX(vnew,vto+2);
+X                }
+X            } else {
+X                /* staying on */
+X                if(delv >= vtsthi) {
+X                    vnew = vold + vtsthi;
+X                }
+X            }
+X        } else {
+X            /* middle region */
+X            if(delv <= 0) {
+X                /* decreasing */
+X                vnew = MAX(vnew,vto-.5);
+X            } else {
+X                /* increasing */
+X                vnew = MIN(vnew,vto+4);
+X            }
+X        }
+X    } else {
+X        /* off */
+X        if(delv <= 0) {
+X            if(-delv >vtsthi) {
+X                vnew = vold - vtsthi;
+X            } 
+X        } else {
+X            vtemp = vto + .5;
+X            if(vnew <= vtemp) {
+X                if(delv >vtstlo) {
+X                    vnew = vold + vtstlo;
+X                }
+X            } else {
+X                vnew = vtemp;
+X            }
+X        }
+X    }
+X    return(vnew);
+}
+SHAR_EOF
+  (set 20 10 10 20 17 29 10 'fetlim.c'; eval "$shar_touch") &&
+  chmod 0660 'fetlim.c'
+if test $? -ne 0
+then ${echo} 'restore of fetlim.c failed'
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'fetlim.c: MD5 check failed'
+       ) << \SHAR_EOF
+6583d6d336065417f8bd3ccbcd2e0464  fetlim.c
+SHAR_EOF
+  else
+test `LC_ALL=C wc -c < 'fetlim.c'` -ne 1590 && \
+  ${echo} 'restoration warning:  size of fetlim.c is not 1590'
+  fi
+fi
+# ============= limvds.c ==============
+if test -f 'limvds.c' && test "$first_param" != -c; then
+  ${echo} 'x -SKIPPING limvds.c (file already exists)'
+else
+${echo} 'x - extracting limvds.c (text)'
+  sed 's/^X//' << 'SHAR_EOF' > 'limvds.c' &&
+X
+X    /* limvds(vnew,vold)
+X     * limit the per-iteration change of VDS
+X     * (From Spice3)
+X     */
+X
+double
+limvds(vnew,vold)
+X    double vnew;
+X    double vold;
+X
+{
+X
+X    if(vold >= 3.5) {
+X        if(vnew > vold) {
+X            vnew = MIN(vnew,(3 * vold) +2);
+X        } else {
+X            if (vnew < 3.5) {
+X                vnew = MAX(vnew,2);
+X            }
+X        }
+X    } else {
+X        if(vnew > vold) {
+X            vnew = MIN(vnew,4);
+X        } else {
+X            vnew = MAX(vnew,-.5);
+X        }
+X    }
+X    return(vnew);
+}
+SHAR_EOF
+  (set 20 10 10 20 17 29 10 'limvds.c'; eval "$shar_touch") &&
+  chmod 0660 'limvds.c'
+if test $? -ne 0
+then ${echo} 'restore of limvds.c failed'
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'limvds.c: MD5 check failed'
+       ) << \SHAR_EOF
+5346fec9d9f104ae32aaf34435a98fa2  limvds.c
+SHAR_EOF
+  else
+test `LC_ALL=C wc -c < 'limvds.c'` -ne 521 && \
+  ${echo} 'restoration warning:  size of limvds.c is not 521'
+  fi
+fi
+# ============= mosfet.c ==============
+if test -f 'mosfet.c' && test "$first_param" != -c; then
+  ${echo} 'x -SKIPPING mosfet.c (file already exists)'
+else
+${echo} 'x - extracting mosfet.c (text)'
+  sed 's/^X//' << 'SHAR_EOF' > 'mosfet.c' &&
+/* MOSFET Template code derived from SPICE - K. Mayaram */
+X
+#include "macros.h"
+#include "defs.h"
+#include "mosfet.h"
+#include "sparse/spMatrix.h"
+X
+void loadMosfet(Matrix, Rhs, Mosfet, numMosfet, Xk)
+char *Matrix;
+double *Rhs;
+mosfet *Mosfet[];
+int numMosfet;
+double* Xk;
+{
+X  int i, g, d, s, b;
+X  mosfet *inst;
+X  double gm, gds, gmbs, Ik, Id, Vgs, Vgd, Vds, Vbs, Vbd;
+X  double lambda, K, Vto, gamma, phi, W, L, beta, betap, vgst;
+X  double type, norm, rev, von, arg, sarg;
+X  int j;
+X
+X  for(i = 1; i <= numMosfet; i++) {
+X    inst = Mosfet[i];
+X    g = inst->gNode;
+X    d = inst->dNode;
+X    s = inst->sNode;
+X    b = inst->bNode;
+X    
+X    Vgs = Xk[g]-Xk[s];
+X    Vgd = Xk[g]-Xk[d];
+X    Vds = Xk[d]-Xk[s];
+X    Vbs = Xk[b]-Xk[s];
+X    Vbd = Xk[b]-Xk[d];
+X     
+X    W = inst->W;
+X    L = inst->L;
+X
+X    gamma = 0.5;
+X    phi = 0.6;
+X
+X    if (!strcmp(inst->mname, "pmos")) {
+X      /* case pmos */
+X      lambda = 0.05;
+X      K = 50.0e-6;
+X      Vto = -0.9;
+X      type = -1.0;
+X    } else {
+X      /* case nmos */
+X      lambda = 0.05;
+X      K = 100.0e-6;
+X      Vto = 0.7;
+X      type = 1;
+X    }
+X    beta = K*W/L;
+X    Vto = type*Vto;
+X    Vgs = type*Vgs;
+X    Vgd = type*Vgd;
+X    Vds = type*Vds;
+X    Vbs = type*Vbs;
+X    Vbd = type*Vbd;
+X    
+X    norm = 1.0;
+X    rev = 0.0;
+X    if(Vds < 0.0 ) {
+X	/* reverse mode */
+X	Vds = -Vds;
+X	Vgs = Vgd;
+X	Vbs = Vbd;
+X	norm = 0.0;
+X	rev = 1.0;
+X    }
+X    /* calculation of Vt for Vsb < 0 */
+X
+X    if (Vbs <= 0 ) {
+X	sarg=sqrt(phi-Vbs);
+X    } else {
+X	sarg=sqrt(phi);
+X	sarg=sarg-Vbs/(sarg+sarg);
+X	sarg=MAX(0,sarg);
+X    }
+X    von=Vto+gamma*(sarg-sqrt(phi));
+X    vgst=Vgs-von;
+X    if (sarg <= 0) {
+X	arg=0;
+X    } else {
+X	arg=gamma/(sarg+sarg);
+X    }
+X    if (vgst <= 0) {
+X	/*
+X	 *     cutoff region
+X	 */
+X	Id=0;
+X	gm=0;
+X	gds=0;
+X	gmbs=0;
+X    } else{
+X	/*
+X	 *     saturation region
+X	 */
+X	betap=beta*(1+lambda*Vds);
+X	if (vgst <= Vds) {
+X	    Id=betap*vgst*vgst*.5;
+X	    gm=betap*vgst;
+X	    gds=lambda*beta*vgst*vgst*.5;
+X	    gmbs=gm*arg;
+X	} else {
+X	/*
+X	 *     linear region
+X	 */
+X	    Id=betap*Vds*(vgst-.5*Vds);
+X	    gm=betap*Vds;
+X	    gds=betap*(vgst-Vds)+lambda*beta*Vds*(vgst-.5*Vds);
+X	    gmbs=gm*arg;
+X	}
+X    }
+X    if (norm == 1.0) {
+X	Ik = type*(Id-gm*Vgs-gds*Vds-gmbs*Vbs);    
+X    } else {
+X	Ik = -type *(Id-gm*Vgs-gds*Vds-gmbs*Vbs);    
+X    }
+X    /* stamp mosfet*/
+X    *(inst->pdd) += gds + rev*(gm+gmbs);
+X    *(inst->pds) -= gds + norm*(gm+gmbs);
+X    *(inst->pdg) += (norm - rev)*gm;
+X    *(inst->pdb) += (norm - rev)*gmbs;
+X    *(inst->psd) -= gds + rev*(gm+gmbs);
+X    *(inst->pss) += gds + norm*(gm+gmbs);
+X    *(inst->psg) -= (norm - rev)*gm;
+X    *(inst->psb) -= (norm - rev)*gmbs;
+X    
+X    Rhs[d] -= Ik;
+X    Rhs[s] += Ik;
+X  }
+}
+SHAR_EOF
+  (set 20 10 10 27 09 17 06 'mosfet.c'; eval "$shar_touch") &&
+  chmod 0600 'mosfet.c'
+if test $? -ne 0
+then ${echo} 'restore of mosfet.c failed'
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'mosfet.c: MD5 check failed'
+       ) << \SHAR_EOF
+b0e7433713c18970316f811ba8d79dac  mosfet.c
+SHAR_EOF
+  else
+test `LC_ALL=C wc -c < 'mosfet.c'` -ne 2624 && \
+  ${echo} 'restoration warning:  size of mosfet.c is not 2624'
+  fi
+fi
+# ============= pnjlim.c ==============
+if test -f 'pnjlim.c' && test "$first_param" != -c; then
+  ${echo} 'x -SKIPPING pnjlim.c (file already exists)'
+else
+${echo} 'x - extracting pnjlim.c (text)'
+  sed 's/^X//' << 'SHAR_EOF' > 'pnjlim.c' &&
+X
+X    /* pnjlim(vnew,vold,vt,vcrit,icheck)
+X     * limit the per-iteration change of PN junction  voltages 
+X     * (From Spice3)
+X     * vcrit=Vt*log(Vt/(sqrt(2)*Is))
+X     * icheck is a flag that is set to 1 if limiting is performed else
+X     * it is set to 0
+X     */
+X
+X
+double
+pnjlim(vnew,vold,vt,vcrit,icheck)
+X
+X    double vnew;
+X    double vold;
+X    double vt;
+X    double vcrit;
+X    int *icheck;
+X
+{
+X    double arg;
+X
+X    if((vnew > vcrit) && (ABS(vnew - vold) > (vt + vt))) {
+X        if(vold > 0) {
+X            arg = 1 + (vnew - vold) / vt;
+X            if(arg > 0) {
+X                vnew = vold + vt * log(arg);
+X            } else {
+X                vnew = vcrit;
+X            }
+X        } else {
+X            vnew = vt *log(vnew/vt);
+X        }
+X        *icheck = 1;
+X    } else {
+X        *icheck = 0;
+X    }
+X    return(vnew);
+}
+SHAR_EOF
+  (set 20 10 10 20 17 29 10 'pnjlim.c'; eval "$shar_touch") &&
+  chmod 0600 'pnjlim.c'
+if test $? -ne 0
+then ${echo} 'restore of pnjlim.c failed'
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'pnjlim.c: MD5 check failed'
+       ) << \SHAR_EOF
+ab263692fc6de1e55a7c252286c2a819  pnjlim.c
+SHAR_EOF
+  else
+test `LC_ALL=C wc -c < 'pnjlim.c'` -ne 818 && \
+  ${echo} 'restoration warning:  size of pnjlim.c is not 818'
+  fi
+fi
+# ============= mosfet.h ==============
+if test -f 'mosfet.h' && test "$first_param" != -c; then
+  ${echo} 'x -SKIPPING mosfet.h (file already exists)'
+else
+${echo} 'x - extracting mosfet.h (text)'
+  sed 's/^X//' << 'SHAR_EOF' > 'mosfet.h' &&
+/* information used to describe a single instance */
+X
+typedef struct mosfet {
+X    char *name;  /* pointer to character string naming this mosfet */
+X    char *mname;  /* pointer to character string for mosfet model */
+X    int dNode; /* number of drain node of mosfet */
+X    int gNode; /* number of gate node of mosfet */
+X    int sNode; /* number of source node of mosfet */
+X    int bNode; /* number of bulk node of mosfet */
+X    double L;  /* channel length */
+X    double W;  /* channel width */
+X    double *pdd;	/* pointer to sparse matrix element at
+X                             * (Drain node, drain node) */
+X    double *pds;	/* pointer to sparse matrix element at
+X                             * (Drain node, source node) */
+X    double *pdg; 	/* pointer to sparse matrix element at
+X                             * (Drain node, gate node) */
+X    double *pdb; 	/* pointer to sparse matrix element at
+X                             * (Drain node, bulk node) */
+X    double *psd; 	/* pointer to sparse matrix element at
+X                             * (Source node, drain node) */
+X    double *pss; 	/* pointer to sparse matrix element at
+X                             * (Source node, source node) */
+X    double *psg; 	/* pointer to sparse matrix element at
+X                             * (Source node, gate node) */
+X    double *psb; 	/* pointer to sparse matrix element at
+X                             * (Source node, bulk node) */
+} mosfet ;
+X
+SHAR_EOF
+  (set 20 10 10 20 17 29 10 'mosfet.h'; eval "$shar_touch") &&
+  chmod 0600 'mosfet.h'
+if test $? -ne 0
+then ${echo} 'restore of mosfet.h failed'
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'mosfet.h: MD5 check failed'
+       ) << \SHAR_EOF
+8494752b9bb77d6414b0107c666996f1  mosfet.h
+SHAR_EOF
+  else
+test `LC_ALL=C wc -c < 'mosfet.h'` -ne 1435 && \
+  ${echo} 'restoration warning:  size of mosfet.h is not 1435'
+  fi
+fi
+# ============= test10.ckt ==============
+if test -f 'test10.ckt' && test "$first_param" != -c; then
+  ${echo} 'x -SKIPPING test10.ckt (file already exists)'
+else
+${echo} 'x - extracting test10.ckt (text)'
+  sed 's/^X//' << 'SHAR_EOF' > 'test10.ckt' &&
+vdd 1 0 5
+r1 1 2 1000
+d1 2 3 dmod 1
+va 3 0 5
+d2 2 0 dmod 1
+d3 2 4 dmod 1
+r2 4 0 1000
+SHAR_EOF
+  (set 20 10 10 20 17 29 10 'test10.ckt'; eval "$shar_touch") &&
+  chmod 0600 'test10.ckt'
+if test $? -ne 0
+then ${echo} 'restore of test10.ckt failed'
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'test10.ckt: MD5 check failed'
+       ) << \SHAR_EOF
+de25780fc781f259ba21b42cd1ec90e6  test10.ckt
+SHAR_EOF
+  else
+test `LC_ALL=C wc -c < 'test10.ckt'` -ne 85 && \
+  ${echo} 'restoration warning:  size of test10.ckt is not 85'
+  fi
+fi
+# ============= test11.ckt ==============
+if test -f 'test11.ckt' && test "$first_param" != -c; then
+  ${echo} 'x -SKIPPING test11.ckt (file already exists)'
+else
+${echo} 'x - extracting test11.ckt (text)'
+  sed 's/^X//' << 'SHAR_EOF' > 'test11.ckt' &&
+vdd 1 0 5
+r1 1 2 1000
+m1 2 3 0 0 nmos 10e-6 1e-6
+vg 3 0 3
+SHAR_EOF
+  (set 20 10 10 20 17 29 10 'test11.ckt'; eval "$shar_touch") &&
+  chmod 0600 'test11.ckt'
+if test $? -ne 0
+then ${echo} 'restore of test11.ckt failed'
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'test11.ckt: MD5 check failed'
+       ) << \SHAR_EOF
+89a066439386d6c4ffd3e1757bc487f1  test11.ckt
+SHAR_EOF
+  else
+test `LC_ALL=C wc -c < 'test11.ckt'` -ne 58 && \
+  ${echo} 'restoration warning:  size of test11.ckt is not 58'
+  fi
+fi
+# ============= test12.ckt ==============
+if test -f 'test12.ckt' && test "$first_param" != -c; then
+  ${echo} 'x -SKIPPING test12.ckt (file already exists)'
+else
+${echo} 'x - extracting test12.ckt (text)'
+  sed 's/^X//' << 'SHAR_EOF' > 'test12.ckt' &&
+vdd 1 0 5
+mp1 2 3 1 1 pmos 20e-6 1e-6
+mn1 2 3 0 0 nmos 10e-6 1e-6
+vg 3 0 3
+SHAR_EOF
+  (set 20 10 10 20 17 29 10 'test12.ckt'; eval "$shar_touch") &&
+  chmod 0600 'test12.ckt'
+if test $? -ne 0
+then ${echo} 'restore of test12.ckt failed'
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'test12.ckt: MD5 check failed'
+       ) << \SHAR_EOF
+79ce31745b3e2d2cbdca74a64f5c865f  test12.ckt
+SHAR_EOF
+  else
+test `LC_ALL=C wc -c < 'test12.ckt'` -ne 75 && \
+  ${echo} 'restoration warning:  size of test12.ckt is not 75'
+  fi
+fi
+# ============= test13.ckt ==============
+if test -f 'test13.ckt' && test "$first_param" != -c; then
+  ${echo} 'x -SKIPPING test13.ckt (file already exists)'
+else
+${echo} 'x - extracting test13.ckt (text)'
+  sed 's/^X//' << 'SHAR_EOF' > 'test13.ckt' &&
+vdd 1 0 5
+vss 10 0 -5
+mp1 2 3 1 1 pmos 20e-6 1e-6
+mn1 2 3 0 10 nmos 10e-6 1e-6
+mp2 4 2 1 1 pmos 20e-6 1e-6
+mn2 4 2 0 10 nmos 10e-6 1e-6
+vg 3 0 3
+SHAR_EOF
+  (set 20 10 10 20 17 29 10 'test13.ckt'; eval "$shar_touch") &&
+  chmod 0600 'test13.ckt'
+if test $? -ne 0
+then ${echo} 'restore of test13.ckt failed'
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'test13.ckt: MD5 check failed'
+       ) << \SHAR_EOF
+2edf01dc41d590ccca3daeb4c597a4df  test13.ckt
+SHAR_EOF
+  else
+test `LC_ALL=C wc -c < 'test13.ckt'` -ne 145 && \
+  ${echo} 'restoration warning:  size of test13.ckt is not 145'
+  fi
+fi
+# ============= test14.ckt ==============
+if test -f 'test14.ckt' && test "$first_param" != -c; then
+  ${echo} 'x -SKIPPING test14.ckt (file already exists)'
+else
+${echo} 'x - extracting test14.ckt (text)'
+  sed 's/^X//' << 'SHAR_EOF' > 'test14.ckt' &&
+vdd 1 0 5
+r1 1 2 1000
+m1 2 1 4 0 nmos 10e-6 1e-6
+m2 4 3 0 0 nmos 10e-6 1e-6
+vg 3 0 3
+SHAR_EOF
+  (set 20 10 10 20 17 29 11 'test14.ckt'; eval "$shar_touch") &&
+  chmod 0600 'test14.ckt'
+if test $? -ne 0
+then ${echo} 'restore of test14.ckt failed'
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'test14.ckt: MD5 check failed'
+       ) << \SHAR_EOF
+a78ad9a536b6270bcf8aa1d00d266ece  test14.ckt
+SHAR_EOF
+  else
+test `LC_ALL=C wc -c < 'test14.ckt'` -ne 85 && \
+  ${echo} 'restoration warning:  size of test14.ckt is not 85'
+  fi
+fi
+# ============= test15.ckt ==============
+if test -f 'test15.ckt' && test "$first_param" != -c; then
+  ${echo} 'x -SKIPPING test15.ckt (file already exists)'
+else
+${echo} 'x - extracting test15.ckt (text)'
+  sed 's/^X//' << 'SHAR_EOF' > 'test15.ckt' &&
+vdd 1 0 5
+vss 10 0 -5
+mp1 2 3 1 1 pmos 20e-6 1e-6
+mn1 2 3 0 10 nmos 10e-6 1e-6
+mp2 4 2 1 1 pmos 20e-6 1e-6
+mn2 4 2 0 10 nmos 10e-6 1e-6
+mp3 5 4 1 1 pmos 20e-6 1e-6
+mn3 5 4 0 10 nmos 10e-6 1e-6
+mp4 6 5 1 1 pmos 20e-6 1e-6
+mn4 6 5 0 10 nmos 10e-6 1e-6
+mp5 7 6 1 1 pmos 20e-6 1e-6
+mn5 7 6 0 10 nmos 10e-6 1e-6
+mp6 8 7 1 1 pmos 20e-6 1e-6
+mn6 8 7 0 10 nmos 10e-6 1e-6
+vg 3 0 3
+SHAR_EOF
+  (set 20 10 10 20 17 29 11 'test15.ckt'; eval "$shar_touch") &&
+  chmod 0600 'test15.ckt'
+if test $? -ne 0
+then ${echo} 'restore of test15.ckt failed'
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'test15.ckt: MD5 check failed'
+       ) << \SHAR_EOF
+96cf9c479d3229026228630b97b1ef51  test15.ckt
+SHAR_EOF
+  else
+test `LC_ALL=C wc -c < 'test15.ckt'` -ne 373 && \
+  ${echo} 'restoration warning:  size of test15.ckt is not 373'
+  fi
+fi
+# ============= test16.ckt ==============
+if test -f 'test16.ckt' && test "$first_param" != -c; then
+  ${echo} 'x -SKIPPING test16.ckt (file already exists)'
+else
+${echo} 'x - extracting test16.ckt (text)'
+  sed 's/^X//' << 'SHAR_EOF' > 'test16.ckt' &&
+m1 3 10 2 2 modp 150e-6 3e-6
+m2 4 11 2 2 modp 150e-6 3e-6
+m3 3 3 101 101 modn 75e-6 3e-6
+m4 4 3 101 101 modn 75e-6 3e-6
+m5 2 1 100 100 modp 150e-6 3e-6
+m6 10 4 101 101 modn 150e-6 3e-6
+m7 10 1 100 100 modp 150e-6 3e-6
+m8 1 1 100 100 modp 75e-6 3e-6
+Iref 1 101 50e-6
+vdd 100 0 2.5
+vss 101 0 -2.5
+vin 11 0 0
+SHAR_EOF
+  (set 20 10 10 20 17 29 11 'test16.ckt'; eval "$shar_touch") &&
+  chmod 0600 'test16.ckt'
+if test $? -ne 0
+then ${echo} 'restore of test16.ckt failed'
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'test16.ckt: MD5 check failed'
+       ) << \SHAR_EOF
+984ee983e343558c7b9bc4a18c223dd1  test16.ckt
+SHAR_EOF
+  else
+test `LC_ALL=C wc -c < 'test16.ckt'` -ne 306 && \
+  ${echo} 'restoration warning:  size of test16.ckt is not 306'
+  fi
+fi
+# ============= test17.ckt ==============
+if test -f 'test17.ckt' && test "$first_param" != -c; then
+  ${echo} 'x -SKIPPING test17.ckt (file already exists)'
+else
+${echo} 'x - extracting test17.ckt (text)'
+  sed 's/^X//' << 'SHAR_EOF' > 'test17.ckt' &&
+vcc 1 0 5
+r1 1 2 1000
+q1 2 3 0 npn
+vb 3 0 0.78
+SHAR_EOF
+  (set 20 10 10 20 17 36 09 'test17.ckt'; eval "$shar_touch") &&
+  chmod 0600 'test17.ckt'
+if test $? -ne 0
+then ${echo} 'restore of test17.ckt failed'
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'test17.ckt: MD5 check failed'
+       ) << \SHAR_EOF
+0a75b20e75e7d6655a80bd01db6628bf  test17.ckt
+SHAR_EOF
+  else
+test `LC_ALL=C wc -c < 'test17.ckt'` -ne 47 && \
+  ${echo} 'restoration warning:  size of test17.ckt is not 47'
+  fi
+fi
+# ============= test18.ckt ==============
+if test -f 'test18.ckt' && test "$first_param" != -c; then
+  ${echo} 'x -SKIPPING test18.ckt (file already exists)'
+else
+${echo} 'x - extracting test18.ckt (text)'
+  sed 's/^X//' << 'SHAR_EOF' > 'test18.ckt' &&
+vcc 1 0 5
+rc1 1 2 1000
+q1 2 3 0 npn
+r12 3 4 500
+rc2 1 5 500
+q2 5 4 6 npn
+re2 6 0 500
+vb 3 0 0.78
+SHAR_EOF
+  (set 20 10 10 20 17 42 31 'test18.ckt'; eval "$shar_touch") &&
+  chmod 0600 'test18.ckt'
+if test $? -ne 0
+then ${echo} 'restore of test18.ckt failed'
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'test18.ckt: MD5 check failed'
+       ) << \SHAR_EOF
+8347b990ca6ecd05dbfd555b0eb83848  test18.ckt
+SHAR_EOF
+  else
+test `LC_ALL=C wc -c < 'test18.ckt'` -ne 97 && \
+  ${echo} 'restoration warning:  size of test18.ckt is not 97'
+  fi
+fi
+# ============= test9.ckt ==============
+if test -f 'test9.ckt' && test "$first_param" != -c; then
+  ${echo} 'x -SKIPPING test9.ckt (file already exists)'
+else
+${echo} 'x - extracting test9.ckt (text)'
+  sed 's/^X//' << 'SHAR_EOF' > 'test9.ckt' &&
+vin 1 0 5
+r1 1 2 2000
+d1 2 3 dmod 1
+r2 3 0 3000
+SHAR_EOF
+  (set 20 10 10 20 17 29 11 'test9.ckt'; eval "$shar_touch") &&
+  chmod 0600 'test9.ckt'
+if test $? -ne 0
+then ${echo} 'restore of test9.ckt failed'
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'test9.ckt: MD5 check failed'
+       ) << \SHAR_EOF
+be3cb61921364991ee5bc875e5be680c  test9.ckt
+SHAR_EOF
+  else
+test `LC_ALL=C wc -c < 'test9.ckt'` -ne 48 && \
+  ${echo} 'restoration warning:  size of test9.ckt is not 48'
+  fi
+fi
+if rm -fr ${lock_dir}
+then ${echo} 'x - removed lock directory `'${lock_dir}\''.'
+else ${echo} 'x - failed to remove lock directory `'${lock_dir}\''.'
+  exit 1
+fi
+exit 0
+

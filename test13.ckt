@@ -1,0 +1,7 @@
+vdd 1 0 5
+vss 10 0 -5
+mp1 2 3 1 1 pmos 20e-6 1e-6
+mn1 2 3 0 10 nmos 10e-6 1e-6
+mp2 4 2 1 1 pmos 20e-6 1e-6
+mn2 4 2 0 10 nmos 10e-6 1e-6
+vg 3 0 3
