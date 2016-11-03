@@ -87,13 +87,6 @@ int numMosfet;
 	inst->psg = spGetElement(Matrix, s, g);
 	inst->psb = spGetElement(Matrix, s, b);
         
-
-
-
-
-
-
-
     }
 }
 
@@ -155,6 +148,14 @@ double* Xk;
     
     norm = 1.0;
     rev = 0.0;
+/////////////APPLYING ONE TIME INITIAL CONDITION FOR CONVERGENCE//////////////////////
+   if(iter_counter == 0)
+    {
+      Vgs = 3.0;
+      Vds = 3.0;
+      Vbs = 0.0;
+    }
+
     if(Vds < 0.0 ) {
 	/* reverse mode */
 	Vds = -Vds;

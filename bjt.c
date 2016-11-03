@@ -2,14 +2,14 @@
 #include "math.h"
 #include "sparse/spMatrix.h"
 #include "defs.h"
-#include "dio.h"
+#include "bjt.h"
 
-void makeDio(Dio, numDio, buf)
-diode *Dio[];
-int numDio;
+void makeBjt(Bjt, numBjt, buf)
+bjt *Bjt[];
+int numBjt;
 char *buf;
 {
-    diode *inst;
+    bjt *inst;
     int j, nodeP, nodeN, atoi();
     char name[MAXFIELD], mname[MAXFIELD], node[MAXFIELD], num[MAXFIELD];
     double value, atof();
@@ -17,50 +17,50 @@ char *buf;
     j = 0;	
     j = getNextField(buf, name, j);
     j = getNextField(buf, node, j);
-    nodeP = getMappedNode(node);
+    nodeC = getMappedNode(node);
     j = getNextField(buf, node, j);
-    nodeN = getMappedNode(node);
+    nodeB = getMappedNode(node);
+    j = getNextField(buf, node, j);
+    nodeE = getMappedNode(node);
     j = getNextField(buf, mname, j);
-    j = getNextField(buf, num, j);
-    value = atof(num);
 
-    inst = CALLOC(diode, 1);
+    inst = CALLOC(bjt, 1);
     inst->name = (char *)strdup(name);
-    inst->pNode = nodeP;
-    inst->nNode = nodeN;
+    inst->cNode = nodeC;
+    inst->bNode = nodeB;
+    inst->eNode = nodeE;
     inst->mname = (char *)strdup(mname);
-    inst->area = value;
-    Dio[numDio] = inst;
+    Bjt[numBjt] = inst;
 }
 
-void printDio(Dio, numDio)
-diode *Dio[];
-int numDio;
+void printBjt(Bjt, numBjt)
+bjt *Bjt[];
+int numBjt;
 {
     int i;
-    diode *inst;
+    bjt *inst;
 
-    for(i = 1; i <= numDio; i++) {
-	inst = Dio[i];
-	printf("%s\t%s\t%s\t%s\t%f\n", inst->name, NodeArray[inst->pNode], NodeArray[inst->nNode], inst->mname, inst->area);
+    for(i = 1; i <= numBjt; i++) {
+	inst = Bjt[i];
+	printf("%s\t%s\t%s\t%s\t%f\n", inst->name, NodeArray[inst->cNode], NodeArray[inst->bNode], NodeArray[inst->eNode], inst->mname);
     }
 }
 
 
 
 
-void setupDio(Matrix, Rhs, Dio, numDio)
+void setupBjt(Matrix, Rhs, Bjt, numBjt)
 char *Matrix;
 double *Rhs;
-diode *Dio[];
-int numDio;
+bjt *Bjt[];
+int numBjt;
 {
     int i, p,n;
-    diode *inst;
+    bjt *inst;
 
     /* do any preprocessing steps here */
-    for(i = 1; i <= numDio; i++) {
-	inst = Dio[i];
+    for(i = 1; i <= numBjt; i++) {
+	inst = Bjt[i];
 //	inst->branchNum += NumNodes;
 	p = inst->pNode;
 	n = inst->nNode;
@@ -70,26 +70,27 @@ int numDio;
 	inst->pnp = spGetElement(Matrix, n, p);
 	inst->pnn = spGetElement(Matrix, n, n);
         
+////INITIAL CONDITION TO ACHIEVE CONVERGENCE
+        Xk[p] += .35; 
+        Xk[n] -= .35; 
 
     }
 }
 
-void loadDio(Matrix, Rhs, Dio, numDio, Xk)
+void loadBjt(Matrix, Rhs, Bjt, numBjt, Xk)
 char *Matrix;
 double *Rhs;
-diode *Dio[];
-int numDio;
+bjt *Bjt[];
+int numBjt;
 double* Xk;
 {
   int i, p, n;
-  diode *inst;
+  bjt *inst;
   double gk, Ik,Id, Vd;
   double Is, Vt,area;
 
-
-
-  for(i = 1; i <= numDio; i++) {
-    inst = Dio[i];
+  for(i = 1; i <= numBjt; i++) {
+    inst = Bjt[i];
     p = inst->pNode;
     n = inst->nNode;
 ///////////Getting Vd from Vp and Vn///////////////
@@ -98,9 +99,6 @@ double* Xk;
 ////////Hard coding Is and Vt Values//////////////////
       Is = 100.0e-6;
       Vt = 0.7;
-/////////////APPLYING ONE TIME INITIAL CONDITION FOR CONVERGENCE//////////////////////
-   if(iter_counter == 0)
-      Vd = 0.7;
 ///////////////Id and gk Calculation///////////////////
 
      Id = area*Is*(exp(Vd/Vt)-1);

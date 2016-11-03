@@ -1,5 +1,7 @@
 make clean
 make myspice
+myspice test9.ckt > result9
+myspice test10.ckt > result10
 myspice test11.ckt > result11
 myspice test12.ckt > result12
 myspice test13.ckt > result13

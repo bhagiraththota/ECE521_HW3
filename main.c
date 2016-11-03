@@ -19,6 +19,7 @@
 
 int NumNodes = 0;
 int NumBranches = 0;
+int iter_counter;
 char **NodeArray;
 char **BranchArray;
 
@@ -71,7 +72,7 @@ char **av;
     BOOLEAN foundError();
     int error;
     double norm_dx, norm_Sol_old, norm_Sol, Ea, Er;
-    int iter_counter,Fillins;
+    int Fillins;
     switch (ac) {
         case 2:
             inFile = av[1];
@@ -196,6 +197,13 @@ char **av;
     Sol = CALLOC(double, numEqns+1);
     Sol_old = CALLOC(double, numEqns+1);
 
+//// Initializing Sol_old = 0
+// 
+//   for(i=0;i<numEqns;i++)
+//      {
+//        Sol_old[i]=0.0;
+//        Sol[i]=0.0;
+//      }
     /* do any preprocessing */
     setupRes(cktMatrix, Res, numRes);
     setupIsrc(cktMatrix,Rhs, Isrc, numIsrc);
@@ -208,15 +216,9 @@ char **av;
     setupGyro(cktMatrix, Gyro, numGyro);
     setupOp(cktMatrix, Op, numOp);
     setupMosfet(cktMatrix, Rhs, Mosfet, numMosfet);
+    setupDio(cktMatrix, Rhs, Dio, numDio);
 ///////////////////////////////////////////NEWTON ALGORITHM/////////////////////////////////////////////////////////////////////////
  
-// Initializing Sol_old = 0
- 
-   for(i=0;i<numEqns;i++)
-      {
-        Sol_old[i]=0.0;
-        Sol[i]=0.0;
-      }
 // Declaration and Initializing Norm variables as zero
    
 
@@ -261,6 +263,7 @@ while(norm_dx > Ea+Er*maximum(norm_Sol_old,norm_Sol)){
     loadGyro(cktMatrix, Rhs, Gyro, numGyro);
     loadOp(cktMatrix, Rhs, Op, numOp);
     loadMosfet(cktMatrix, Rhs, Mosfet, numMosfet,Sol);
+    loadDio(cktMatrix, Rhs, Dio, numDio,Sol);
 
     /* print circuit matrix */
     printf("\n");
