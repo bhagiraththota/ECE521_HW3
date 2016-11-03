@@ -14,6 +14,7 @@
 #include "gyro.h"
 #include "dio.h"
 #include "mosfet.h"
+#include "bjt.h"
 
 #include "sparse/spMatrix.h"
 
@@ -52,6 +53,7 @@ char **av;
     gyrator    *Gyro[MAXELEM]; 
     opamp      *Op[MAXELEM]; 
     mosfet      *Mosfet[MAXELEM]; 
+    bjt      *Bjt[MAXELEM]; 
     int i = 0;
     int j = 0;
     int numRes = 0;
@@ -66,6 +68,7 @@ char **av;
     int numGyro = 0;
     int numOp = 0;
     int numMosfet = 0;
+    int numBjt = 0;
     int numEqns;
     char *cktMatrix;
     double *Rhs, *Sol, *Sol_old;
@@ -168,6 +171,12 @@ char **av;
 	numMosfet++;
 	    makeMosfet(Mosfet, numMosfet, buf);
 	}
+	else if(tolower(buf[0]) == 'q') 
+	{
+	    /* bjt */
+	numBjt++;
+	    makeBjt(Bjt, numBjt, buf);
+	}
     }
     fclose( fpIn );
 
@@ -184,6 +193,7 @@ char **av;
     printGyro(Gyro, numGyro);
     printOp(Op, numOp);
     printMosfet(Mosfet, numMosfet);
+    printBjt(Bjt, numBjt);
 
     /* setup circuit matrix */
     numEqns = NumNodes+NumBranches;
@@ -217,6 +227,7 @@ char **av;
     setupOp(cktMatrix, Op, numOp);
     setupMosfet(cktMatrix, Rhs, Mosfet, numMosfet);
     setupDio(cktMatrix, Rhs, Dio, numDio);
+    setupBjt(cktMatrix, Rhs, Bjt, numBjt);
 ///////////////////////////////////////////NEWTON ALGORITHM/////////////////////////////////////////////////////////////////////////
  
 // Declaration and Initializing Norm variables as zero
@@ -264,6 +275,7 @@ while(norm_dx > Ea+Er*maximum(norm_Sol_old,norm_Sol)){
     loadOp(cktMatrix, Rhs, Op, numOp);
     loadMosfet(cktMatrix, Rhs, Mosfet, numMosfet,Sol);
     loadDio(cktMatrix, Rhs, Dio, numDio,Sol);
+    loadBjt(cktMatrix, Rhs, Bjt, numBjt,Sol);
 
     /* print circuit matrix */
     printf("\n");

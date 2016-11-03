@@ -96,8 +96,8 @@ double* Xk;
     Vd = Xk[p]-Xk[n];
     area = inst->area;
 ////////Hard coding Is and Vt Values//////////////////
-      Is = 100.0e-6;
-      Vt = 0.7;
+      Is = 1.0e-16;
+      Vt = 0.0258;
 /////////////APPLYING ONE TIME INITIAL CONDITION FOR CONVERGENCE//////////////////////
    if(iter_counter == 0)
       Vd = 0.7;
