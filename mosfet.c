@@ -154,7 +154,7 @@ double* Xk;
     
     norm = 1.0;
     rev = 0.0;
-/////////////APPLYING ONE TIME INITIAL CONDITION FOR CONVERGENCE//////////////////////
+/////////////APPLYING ONE TIME INITIAL CONDITION FOR CONVERGENCE/////////////////
    if(iter_counter == 0)
     {
       Vgs = 1.1;
@@ -171,6 +171,7 @@ double* Xk;
    inst->Vgs_old = Vgs;
    inst->Vds_old = Vds;
 
+//////////////////////MODES AND CALCULATION OF CURRENTS AND INCREMENTAL GK///////
     if(Vds < 0.0 ) {
 	/* reverse mode */
 	Vds = -Vds;

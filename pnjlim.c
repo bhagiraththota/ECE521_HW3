@@ -19,6 +19,7 @@ pnjlim(vnew,vold,vt,vcrit,icheck)
 
 {
     double arg;
+    int temp;
 
     if((vnew > vcrit) && (ABS(vnew - vold) > (vt + vt))) {
         if(vold > 0) {
@@ -35,5 +36,7 @@ pnjlim(vnew,vold,vt,vcrit,icheck)
     } else {
         *icheck = 0;
     }
+    temp = *icheck;
+    printf("ICHECK = %d \n\n", temp);
     return(vnew);
 }

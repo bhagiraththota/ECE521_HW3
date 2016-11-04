@@ -74,16 +74,17 @@ int numDio;
     }
 }
 
-void loadDio(Matrix, Rhs, Dio, numDio, Xk)
+void loadDio(Matrix, Rhs, Dio, numDio, Xk,icheck)
 char *Matrix;
 double *Rhs;
 diode *Dio[];
 int numDio;
 double* Xk;
+int *icheck;
 {
   int i, p, n;
   diode *inst;
-  double gk, Ik,Id, Vd;
+  double gk, Ik,Id, Vd,Vcrit;
   double Is, Vt,area;
 
 
@@ -92,30 +93,31 @@ double* Xk;
     inst = Dio[i];
     p = inst->pNode;
     n = inst->nNode;
-///////////Getting Vd from Vp and Vn///////////////
+///////////Getting Vd from Vp and Vn////////////////////////////////////
     Vd = Xk[p]-Xk[n];
     area = inst->area;
-////////Hard coding Is and Vt Values//////////////////
+////////Hard coding Is and Vt Values////////////////////////////////////
       Is = 1.0e-16;
       Vt = 0.0258;
-/////////////APPLYING ONE TIME INITIAL CONDITION FOR CONVERGENCE//////////////////////
-   if(iter_counter == 0)
+/////////////APPLYING ONE TIME INITIAL CONDITION FOR CONVERGENCE////////
+   if(iter_counter == 0){
       Vd = 0.7;
+      inst->Vd_old = 0.8;
+    }
+////////////////////////////////APPLYING LIMITING///////////////////////
+     Vcrit = Vt*log(Vt/(Is*sqrt(2)));
+     Vd= pnjlim(Vd,inst->Vd_old,Vt,Vcrit, icheck);
 
-////////////////////////////////APPLYING LIMITING////////////////////////////////
- //  Vd= pnjlim(Vd,inst->Vd_old,Vto,Vcrit,icheck);
- //  inst->Vd_old = Vd;
+///////////////////////////////ASSIGNING V_OLD///////////////////////////////////
+     inst->Vd_old = Vd;
+     
 
+///////////////Id and gk Calculation////////////////////////////////////
+                                                                 
+     Id = area*Is*(exp(Vd/Vt)-1);                                
+     gk = area*Is*exp(Vd/Vt)/Vt;                       
 
-
-
-
-///////////////Id and gk Calculation///////////////////
-
-     Id = area*Is*(exp(Vd/Vt)-1);
-     gk = area*Is*exp(Vd/Vt)/Vt;
-
-////////////////////Ik Calculation/////////////////////
+////////////////////Ik Calculation//////////////////////////////////////
 
      Ik = Id-gk*Vd;
      printf(" Ik = %f \n",Ik);

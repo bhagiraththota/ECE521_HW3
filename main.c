@@ -73,7 +73,7 @@ char **av;
     char *cktMatrix;
     double *Rhs, *Sol, *Sol_old;
     BOOLEAN foundError();
-    int error;
+    int error, icheck;
     double norm_dx, norm_Sol_old, norm_Sol, Ea, Er;
     int Fillins;
     switch (ac) {
@@ -232,6 +232,7 @@ char **av;
    Ea = 1e-6;
    Er = 1e-3;
    iter_counter = 0;
+   icheck = 0;
 
 while(norm_dx > Ea+Er*maximum(norm_Sol_old,norm_Sol)){
 
@@ -262,8 +263,8 @@ while(norm_dx > Ea+Er*maximum(norm_Sol_old,norm_Sol)){
     loadGyro(cktMatrix, Rhs, Gyro, numGyro);
     loadOp(cktMatrix, Rhs, Op, numOp);
     loadMosfet(cktMatrix, Rhs, Mosfet, numMosfet,Sol);
-    loadDio(cktMatrix, Rhs, Dio, numDio,Sol);
-    loadBjt(cktMatrix, Rhs, Bjt, numBjt,Sol);
+    loadDio(cktMatrix, Rhs, Dio, numDio,Sol, &icheck);
+    loadBjt(cktMatrix, Rhs, Bjt, numBjt,Sol, &icheck);
 
 // Assigning Current solution to the Old solution
  

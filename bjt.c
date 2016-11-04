@@ -3,6 +3,7 @@
 #include "sparse/spMatrix.h"
 #include "defs.h"
 #include "bjt.h"
+#include "pnjlim.c"
 
 void makeBjt(Bjt, numBjt, buf)
 bjt *Bjt[];
@@ -79,18 +80,19 @@ int numBjt;
     }
 }
 
-void loadBjt(Matrix, Rhs, Bjt, numBjt, Xk)
+void loadBjt(Matrix, Rhs, Bjt, numBjt, Xk,icheck)
 char *Matrix;
 double *Rhs;
 bjt *Bjt[];
 int numBjt;
 double* Xk;
+int *icheck;
 {
   int i, c, b, e;
   bjt *inst;
   double Ic, Ib, Ie;
   double Ick, Ibk, Iek;
-  double Vce, Vbe, Vbc;
+  double Vce, Vbe, Vbc,Vcrit;
   double gmF, gmR;
   double gmcc, gmcb, gmce;
   double gmbc, gmbb, gmbe;
@@ -118,7 +120,19 @@ double* Xk;
       Vbe = 0.7;
       Vce = 0.2;
       Vbc = 1.0;
-    } 
+}
+////////////////////////////////APPLYING LIMITING////////////////////////////////
+   Vcrit = Vt*log(Vt/(Is*sqrt(2)));
+ //  if(Vbe>0)
+//   Vbe= pnjlim(Vbe,inst->Vbe_old,Vt,Vcrit, icheck);
+// //  if(Vbc>0)
+//   Vbc= pnjlim(Vbc,inst->Vbc_old,Vt,Vcrit, icheck);
+//
+///////////////////////////////ASSIGNING V_OLD///////////////////////////////////
+   inst->Vbe_old = Vbe;
+   inst->Vbc_old = Vbc;
+
+     
 ///////////////Ic, Ie, Ib, gmF and gmR etc. Calculation///////////////////
 
      Ic = Is*((exp(Vbe/Vt)-1)-(exp(Vbc/Vt)-1)/alphaR);
