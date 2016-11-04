@@ -7,6 +7,10 @@ typedef struct mosfet {
     int gNode; /* number of gate node of mosfet */
     int sNode; /* number of source node of mosfet */
     int bNode; /* number of bulk node of mosfet */
+
+    double Vgs_old;
+    double Vds_old;
+
     double L;  /* channel length */
     double W;  /* channel width */
     double *pdd;	/* pointer to sparse matrix element at

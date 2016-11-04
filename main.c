@@ -207,13 +207,6 @@ char **av;
     Sol = CALLOC(double, numEqns+1);
     Sol_old = CALLOC(double, numEqns+1);
 
-//// Initializing Sol_old = 0
-// 
-//   for(i=0;i<numEqns;i++)
-//      {
-//        Sol_old[i]=0.0;
-//        Sol[i]=0.0;
-//      }
     /* do any preprocessing */
     setupRes(cktMatrix, Res, numRes);
     setupIsrc(cktMatrix,Rhs, Isrc, numIsrc);
@@ -247,11 +240,6 @@ while(norm_dx > Ea+Er*maximum(norm_Sol_old,norm_Sol)){
    norm_Sol_old  = 0;
    norm_Sol = 0;
 
-// Assigning Current solution to the Old solution
- 
-   for(i=1;i<=numEqns+1;i++)
-        Sol_old[i]=Sol[i];
- 
  // Clearing the Matrix
  
     spClear(cktMatrix);
@@ -277,6 +265,11 @@ while(norm_dx > Ea+Er*maximum(norm_Sol_old,norm_Sol)){
     loadDio(cktMatrix, Rhs, Dio, numDio,Sol);
     loadBjt(cktMatrix, Rhs, Bjt, numBjt,Sol);
 
+// Assigning Current solution to the Old solution
+ 
+   for(i=1;i<=numEqns+1;i++)
+        Sol_old[i]=Sol[i];
+ 
     /* print circuit matrix */
     printf("\n");
     spPrint(cktMatrix, 0, 1, 0);

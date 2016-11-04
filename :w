@@ -5,9 +5,6 @@
 #include "defs.h"
 #include "mosfet.h"
 #include "sparse/spMatrix.h"
-#include "fetlim.c"
-#include "limvds.c"
-
 
 void makeMosfet(Mosfet, numMosfet, buf)
 mosfet *Mosfet[];
@@ -95,17 +92,18 @@ int numMosfet;
 
 
 
-void loadMosfet(Matrix, Rhs, Mosfet, numMosfet, Xk)
+void loadMosfet(Matrix, Rhs, Mosfet, numMosfet, Xk, Xk_old)
 char *Matrix;
 double *Rhs;
 mosfet *Mosfet[];
 int numMosfet;
 double* Xk;
+double* Xk_old;
 {
   int i, g, d, s, b;
   mosfet *inst;
   double gm, gds, gmbs, Ik, Id, Vgs, Vgd, Vds, Vbs, Vbd;
-  double  Vgs_old, Vds_old;
+  double  Vgs_old, Vds_old,vto;
   double lambda, K, Vto, gamma, phi, W, L, beta, betap, vgst;
   double type, norm, rev, von, arg, sarg;
   int j;
@@ -122,6 +120,8 @@ double* Xk;
     Vbs = Xk[b]-Xk[s];
     Vbd = Xk[b]-Xk[d];
      
+    Vgs_old = Xk_old[g]-Xk_old[s];
+    Vds_old = Xk_old[d]-Xk_old[s];
 
 
 
@@ -158,18 +158,24 @@ double* Xk;
    if(iter_counter == 0)
     {
       Vgs = 1.1;
+      Vgs_old = 1.0;
       Vds = 1.1;
-      inst->Vgs_old = 1.0;
-      inst->Vds_old = 1.0;
+      Vds_old = 1.0;
       Vbs = 0.0;
     }
-////////////////////////////////APPLYING LIMITING////////////////////////////////
-   Vgs=fetlim(Vgs,inst->Vgs_old,Vto);
-   Vds=limvds(Vds,inst->Vds_old);
 
-///////////////////////////////ASSIGNING V_OLD///////////////////////////////////
-   inst->Vgs_old = Vgs;
-   inst->Vds_old = Vds;
+    printf("This is the Vgs = %g \n\n\n",Vgs);
+    printf("This is the Vds = %g \n\n\n",Vds);
+    printf("This is the Vgs_old = %g \n\n\n",Vgs_old);
+    printf("This is the Vds_old = %g \n\n\n",Vds_old);
+    printf("This is the Vto = %g \n\n\n",Vto);
+ 
+   Vgs=fetlim(Vgs,Vgs_old,Vto);
+   Vds=limvds(Vds,Vds_old);
+    printf("This is the Vgs = %g \n\n\n",Vgs);
+    printf("This is the Vds = %g \n\n\n",Vds);
+    printf("This is the Vgs_old = %g \n\n\n",Vgs_old);
+    printf("This is the Vds_old = %g \n\n\n",Vds_old);
 
     if(Vds < 0.0 ) {
 	/* reverse mode */

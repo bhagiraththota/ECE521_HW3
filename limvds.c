@@ -4,6 +4,8 @@
      * (From Spice3)
      */
 
+#include "defs.h"
+#include "macros.h"
 double
 limvds(vnew,vold)
     double vnew;

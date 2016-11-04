@@ -5,6 +5,15 @@
      * (From Spice3)
      */
 
+    /*
+     * fetlim(vnew,vold.vto)
+     * limit the per-iteration change of FET voltages 
+     * (From Spice3)
+     */
+
+#include "defs.h"
+#include "macros.h"
+
 double
 fetlim(vnew,vold,vto)
     double vnew;
@@ -17,6 +26,10 @@ fetlim(vnew,vold,vto)
     double vtox;
     double delv;
     double vtemp;
+
+   
+   
+   
 
     vtsthi = ABS(2*(vold-vto))+2;
     vtstlo = vtsthi/2 +2;

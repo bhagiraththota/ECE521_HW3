@@ -101,13 +101,24 @@ double* Xk;
 /////////////APPLYING ONE TIME INITIAL CONDITION FOR CONVERGENCE//////////////////////
    if(iter_counter == 0)
       Vd = 0.7;
+
+////////////////////////////////APPLYING LIMITING////////////////////////////////
+ //  Vd= pnjlim(Vd,inst->Vd_old,Vto,Vcrit,icheck);
+ //  inst->Vd_old = Vd;
+
+
+
+
+
 ///////////////Id and gk Calculation///////////////////
 
      Id = area*Is*(exp(Vd/Vt)-1);
      gk = area*Is*exp(Vd/Vt)/Vt;
+
 ////////////////////Ik Calculation/////////////////////
 
      Ik = Id-gk*Vd;
+     printf(" Ik = %f \n",Ik);
 
     *(inst->ppp) += gk;
     *(inst->ppn) -= gk;

@@ -7,6 +7,7 @@ typedef struct diode{
 
     char *mname;  /* pointer to character string naming the model */
     double area;  /* area factor */
+    double Vd_old;  /* area factor */
 
     double *ppp;     /*pointer to sparse-matrix location (pNode, pNode)*/
     double *ppn;     /*pointer to sparse-matrix location (pNode, nNode)*/
