@@ -5,9 +5,9 @@
 #include "defs.h"
 #include "mosfet.h"
 #include "sparse/spMatrix.h"
-#include "fetlim.c"
-#include "limvds.c"
 
+double limvds();
+double fetlim();
 
 void makeMosfet(Mosfet, numMosfet, buf)
 mosfet *Mosfet[];
@@ -163,7 +163,7 @@ double* Xk;
       inst->Vds_old = 1.0;
       Vbs = 0.0;
     }
-////////////////////////////////APPLYING LIMITING////////////////////////////////
+//////////////////////////////////APPLYING LIMITING////////////////////////////////
    Vgs=fetlim(Vgs,inst->Vgs_old,Vto);
    Vds=limvds(Vds,inst->Vds_old);
 

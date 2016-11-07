@@ -4,6 +4,8 @@
 #include "defs.h"
 #include "dio.h"
 
+double pnjlim();
+
 void makeDio(Dio, numDio, buf)
 diode *Dio[];
 int numDio;
@@ -101,10 +103,10 @@ int *icheck;
       Vt = 0.0258;
 /////////////APPLYING ONE TIME INITIAL CONDITION FOR CONVERGENCE////////
    if(iter_counter == 0){
-      Vd = 0.7;
+      Vd = 0.5;
       inst->Vd_old = 0.8;
     }
-////////////////////////////////APPLYING LIMITING///////////////////////
+//////////////////////////////////APPLYING LIMITING///////////////////////
      Vcrit = Vt*log(Vt/(Is*sqrt(2)));
      Vd= pnjlim(Vd,inst->Vd_old,Vt,Vcrit, icheck);
 

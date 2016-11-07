@@ -1,4 +1,5 @@
-    /* pnjlim(vnew,vold,vt,vcrit,icheck)
+
+    /* bjtlim(vnew,vold,vt,vcrit,icheck)
      * limit the per-iteration change of PN junction  voltages 
      * (From Spice3)
      * vcrit=Vt*log(Vt/(sqrt(2)*Is))
@@ -6,11 +7,9 @@
      * it is set to 0
      */
 
-#include "macros.h"
-#include "math.h"
 
 double
-pnjlim(vnew,vold,vt,vcrit,icheck)
+bjtlim(vnew,vold,vt,vcrit,icheck)
 
     double vnew;
     double vold;
@@ -37,5 +36,7 @@ pnjlim(vnew,vold,vt,vcrit,icheck)
     } else {
         *icheck = 0;
     }
+    temp = *icheck;
+    printf("ICHECK = %d \n\n", temp);
     return(vnew);
 }

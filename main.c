@@ -234,7 +234,8 @@ char **av;
    iter_counter = 0;
    icheck = 0;
 
-while(norm_dx > Ea+Er*maximum(norm_Sol_old,norm_Sol)){
+while(norm_dx > Ea+Er*maximum(norm_Sol_old,norm_Sol || icheck==1)){
+
 
 //Clearing the norm values
    norm_dx = 0;
